@@ -148,5 +148,6 @@ export function useGame() {
     startLevel,
     restart,
     flip,
+    endGame,
   }
 }

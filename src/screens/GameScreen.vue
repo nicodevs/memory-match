@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import GameBoard from '@/components/GameBoard.vue'
 import GameLayout from '@/components/GameLayout.vue'
+import GameTimer from '@/components/GameTimer.vue'
 import HpBar from '@/components/HpBar.vue'
 import IconButton from '@/components/IconButton.vue'
+import StartOverlay from './StartOverlay.vue'
 import VictoryOverlay from './VictoryOverlay.vue'
 import GameOverOverlay from './GameOverOverlay.vue'
 import { useGame } from '@/composables/useGame'
 import { useSound } from '@/composables/useSound'
+import { useTimer } from '@/composables/useTimer'
+import { levelDuration } from '@/constants'
 
 const emit = defineEmits<{ close: [] }>()
 
@@ -23,14 +28,42 @@ const {
   startLevel,
   restart,
   flip,
+  endGame,
 } = useGame()
 const { enabled: soundOn, toggle: toggleSound } = useSound()
+const { remaining, start: startTimer, stop: stopTimer } = useTimer()
+
+/** Whether the current level's play (and its timer) has begun. */
+const started = ref(false)
 
 startLevel(1)
 
-function nextLevel() {
-  startLevel(level.value + 1)
+// Show the level's full duration behind the Start overlay; the live countdown
+// takes over once play begins.
+const seconds = computed(() => (started.value ? remaining.value : levelDuration(level.value)))
+
+// The timer begins when the Start overlay finishes fading out.
+function beginLevel() {
+  started.value = true
+  startTimer(levelDuration(level.value), endGame)
 }
+
+function nextLevel() {
+  stopTimer()
+  startLevel(level.value + 1)
+  started.value = false
+}
+
+function retry() {
+  stopTimer()
+  restart()
+  started.value = false
+}
+
+// Freeze the timer when the level is won or lost mid-countdown.
+watch([won, isOver], ([hasWon, over]) => {
+  if (hasWon || over) stopTimer()
+})
 </script>
 
 <template>
@@ -44,6 +77,7 @@ function nextLevel() {
     </template>
 
     <div class="flex w-full flex-col items-center gap-6">
+      <GameTimer :seconds="seconds" />
       <GameBoard :cards="cards" :cols="cols" @flip="flip" />
       <HpBar :hp="hp" :max="maxHp" />
     </div>
@@ -54,6 +88,7 @@ function nextLevel() {
     </template>
   </GameLayout>
 
+  <StartOverlay v-if="!started && !won && !isOver" :level="level" @start="beginLevel" />
   <VictoryOverlay v-if="won" @continue="nextLevel" />
-  <GameOverOverlay v-if="isOver" @retry="restart" />
+  <GameOverOverlay v-if="isOver" @retry="retry" />
 </template>
