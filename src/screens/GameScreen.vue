@@ -9,11 +9,12 @@ import PowerBar from '@/components/PowerBar.vue'
 import StartOverlay from './StartOverlay.vue'
 import VictoryOverlay from './VictoryOverlay.vue'
 import GameOverOverlay from './GameOverOverlay.vue'
+import ShopScreen from './ShopScreen.vue'
 import { useGame } from '@/composables/useGame'
 import { usePowers } from '@/composables/usePowers'
 import { useSound } from '@/composables/useSound'
 import { useTimer } from '@/composables/useTimer'
-import { levelDuration, SNACK_HEAL, TIME_STOP_MS } from '@/constants'
+import { levelDuration, POWERS, SNACK_HEAL, TIME_STOP_MS } from '@/constants'
 import type { PowerState } from '@/types'
 
 const emit = defineEmits<{ close: [] }>()
@@ -37,14 +38,19 @@ const {
 } = useGame()
 const { enabled: soundOn, toggle: toggleSound } = useSound()
 const { remaining, frozen, start: startTimer, stop: stopTimer, freeze } = useTimer()
-const { inventory, resetForLevel, markUsed } = usePowers()
+const { inventory, owns, add: addPower, resetForLevel, markUsed } = usePowers()
 
 /** Whether the current level's play (and its timer) has begun. */
 const started = ref(false)
+/** Shown between levels (after victory) so the player can spend coins. */
+const showShop = ref(false)
 /** Coins banked across every level cleared this session. */
 const totalCoins = ref(0)
 /** Reward for clearing a level: the leftover time plus the surviving lives. */
 const coinsEarned = computed(() => remaining.value + hp.value)
+
+/** Every power paired with whether it is already in the inventory, for the shop. */
+const shopEntries = computed(() => POWERS.map((def) => ({ def, owned: owns(def.id) })))
 
 startLevel(1)
 
@@ -82,6 +88,25 @@ function usePower(power: PowerState) {
   }
 
   markUsed(power.def.id)
+}
+
+/** Buy a power: deduct its price and add it to the inventory. */
+function buyPower(id: string) {
+  const def = POWERS.find((power) => power.id === id)
+  if (!def || owns(def.id) || totalCoins.value < def.price) return
+  totalCoins.value -= def.price
+  addPower(def)
+}
+
+/** Victory's CONTINUE opens the shop rather than jumping straight to the next level. */
+function openShop() {
+  showShop.value = true
+}
+
+/** The shop's CONTINUE advances to the next level (showing its Start overlay). */
+function continueFromShop() {
+  showShop.value = false
+  nextLevel()
 }
 
 function nextLevel() {
@@ -140,13 +165,21 @@ watch([won, isOver], ([hasWon, over]) => {
     @menu="emit('close')"
   />
   <VictoryOverlay
-    v-if="won"
+    v-if="won && !showShop"
     :level="level"
     :time-left="remaining"
     :lives-left="hp"
     :coins-earned="coinsEarned"
     :total-coins="totalCoins"
-    @continue="nextLevel"
+    @continue="openShop"
+  />
+  <ShopScreen
+    v-if="showShop"
+    :entries="shopEntries"
+    :coins="totalCoins"
+    @buy="buyPower"
+    @continue="continueFromShop"
+    @close="emit('close')"
   />
   <GameOverOverlay v-if="isOver" @retry="retry" @menu="emit('close')" />
 </template>

@@ -33,6 +33,10 @@ export interface PowerDef {
   id: string
   name: string
   icon: string
+  /** Short description shown on the shop card. */
+  description: string
+  /** Coin cost to buy the power in the shop. */
+  price: number
   kind: PowerKind
   /** Set on peek powers: the emoji family they reveal. */
   category?: EmojiCategory

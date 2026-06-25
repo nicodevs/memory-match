@@ -57,14 +57,61 @@ export const TIME_STOP_MS = 5000
 export const PEEK_MS = 1000
 
 /**
- * The powers a player starts with. Reusable powers return each level; consumables
- * are gone for good once used. Peek powers carry the category they reveal.
+ * Every power in the game. Players start with none and buy them in the shop.
+ * Reusable powers stay once bought; consumables leave the inventory when spent.
+ * Peek powers carry the category they reveal.
  */
 export const POWERS: PowerDef[] = [
-  { id: 'snack', name: 'Snack', icon: '🍔', kind: 'consumable' },
-  { id: 'time-stop', name: 'Time Stop', icon: '⏸️', kind: 'consumable' },
-  { id: 'bait', name: 'Bait', icon: '🍖', kind: 'reusable', category: 'animals' },
-  { id: 'light-flash', name: 'Light Flash', icon: '🔦', kind: 'reusable', category: 'monsters' },
-  { id: 'sound-check', name: 'Sound Check', icon: '🎵', kind: 'reusable', category: 'instruments' },
-  { id: 'piece-of-cake', name: 'Piece of Cake', icon: '🍰', kind: 'reusable', category: 'humans' },
+  {
+    id: 'snack',
+    name: 'Snack',
+    icon: '🍔',
+    description: 'Restore 5 HP.',
+    price: 10,
+    kind: 'consumable',
+  },
+  {
+    id: 'time-stop',
+    name: 'Time Stop',
+    icon: '⏸️',
+    description: 'Freeze the timer for 5 seconds.',
+    price: 10,
+    kind: 'consumable',
+  },
+  {
+    id: 'bait',
+    name: 'Bait',
+    icon: '🍖',
+    description: 'Peek at all animal cards for 1 second.',
+    price: 15,
+    kind: 'reusable',
+    category: 'animals',
+  },
+  {
+    id: 'light-flash',
+    name: 'Light Flash',
+    icon: '🔦',
+    description: 'Peek at all monster cards for 1 second.',
+    price: 15,
+    kind: 'reusable',
+    category: 'monsters',
+  },
+  {
+    id: 'sound-check',
+    name: 'Sound Check',
+    icon: '🎵',
+    description: 'Peek at all instrument cards for 1 second.',
+    price: 15,
+    kind: 'reusable',
+    category: 'instruments',
+  },
+  {
+    id: 'piece-of-cake',
+    name: 'Piece of Cake',
+    icon: '🍰',
+    description: 'Peek at all human cards for 1 second.',
+    price: 15,
+    kind: 'reusable',
+    category: 'humans',
+  },
 ]

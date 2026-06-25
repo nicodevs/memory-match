@@ -2,21 +2,39 @@ import { describe, expect, it } from 'vitest'
 import { usePowers } from '../usePowers'
 import { POWERS } from '@/constants'
 
+const def = (id: string) => POWERS.find((p) => p.id === id)!
+
 describe('usePowers', () => {
-  it('starts with the full set of powers, none used', () => {
+  it('starts with an empty inventory', () => {
     const { inventory } = usePowers()
-    expect(inventory.value).toHaveLength(POWERS.length)
-    expect(inventory.value.every((p) => !p.usedThisLevel)).toBe(true)
+    expect(inventory.value).toHaveLength(0)
+  })
+
+  it('adds a bought power to the inventory', () => {
+    const { inventory, owns, add } = usePowers()
+    add(def('bait'))
+    expect(owns('bait')).toBe(true)
+    expect(inventory.value).toHaveLength(1)
+    expect(inventory.value[0]!.usedThisLevel).toBe(false)
+  })
+
+  it('does not add the same power twice', () => {
+    const { inventory, add } = usePowers()
+    add(def('bait'))
+    add(def('bait'))
+    expect(inventory.value).toHaveLength(1)
   })
 
   it('marks a power as used this level', () => {
-    const { inventory, markUsed } = usePowers()
+    const { inventory, add, markUsed } = usePowers()
+    add(def('bait'))
     markUsed('bait')
     expect(inventory.value.find((p) => p.def.id === 'bait')?.usedThisLevel).toBe(true)
   })
 
   it('keeps reusable powers but re-arms them on the next level', () => {
-    const { inventory, markUsed, resetForLevel } = usePowers()
+    const { inventory, add, markUsed, resetForLevel } = usePowers()
+    add(def('bait'))
     markUsed('bait')
     resetForLevel()
 
@@ -25,19 +43,18 @@ describe('usePowers', () => {
     expect(bait?.usedThisLevel).toBe(false)
   })
 
-  it('drops spent consumables from the inventory for good', () => {
-    const { inventory, markUsed, resetForLevel } = usePowers()
+  it('drops spent consumables so they can be bought again', () => {
+    const { owns, add, markUsed, resetForLevel } = usePowers()
+    add(def('snack'))
     markUsed('snack')
     resetForLevel()
-
-    expect(inventory.value.find((p) => p.def.id === 'snack')).toBeUndefined()
-    // An unused consumable survives the reset.
-    expect(inventory.value.find((p) => p.def.id === 'time-stop')).toBeDefined()
+    expect(owns('snack')).toBe(false)
   })
 
-  it('does not drop a consumable that was never used', () => {
-    const { inventory, resetForLevel } = usePowers()
+  it('keeps a consumable that was never used', () => {
+    const { owns, add, resetForLevel } = usePowers()
+    add(def('time-stop'))
     resetForLevel()
-    expect(inventory.value).toHaveLength(POWERS.length)
+    expect(owns('time-stop')).toBe(true)
   })
 })
