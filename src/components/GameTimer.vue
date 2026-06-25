@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{ seconds: number }>()
+const props = withDefaults(defineProps<{ seconds: number; frozen?: boolean }>(), { frozen: false })
 
-const urgent = computed(() => props.seconds <= 5)
+const urgent = computed(() => !props.frozen && props.seconds <= 5)
+
+const color = computed(() => {
+  if (props.frozen) return 'text-sky-300'
+  return urgent.value ? 'text-red-500' : 'text-white'
+})
 </script>
 
 <template>
   <div
     class="flex items-center gap-2 text-3xl font-black tabular-nums transition-colors"
-    :class="urgent ? 'text-red-500' : 'text-white'"
+    :class="[color, { 'animate-pulse': frozen }]"
   >
-    <span>⏱️</span>
+    <span>{{ frozen ? '⏸️' : '⏱️' }}</span>
     <span>{{ seconds }}</span>
   </div>
 </template>

@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useGame } from '../useGame'
-import { FLIP_MS, MATCH_FADE_MS, MAX_HP, MISMATCH_DELAY_MS } from '@/constants'
+import {
+  categoryOf,
+  FLIP_MS,
+  MATCH_FADE_MS,
+  MAX_HP,
+  MISMATCH_DELAY_MS,
+  PEEK_MS,
+} from '@/constants'
 
 describe('useGame', () => {
   beforeEach(() => {
@@ -130,6 +137,57 @@ describe('useGame', () => {
     expect(game.hp.value).toBe(MAX_HP)
     expect(game.isOver.value).toBe(false)
     expect(game.cards.value).toHaveLength(12)
+  })
+
+  it('heals HP up to but not beyond the maximum', async () => {
+    const game = useGame()
+    game.startLevel(1)
+
+    // Drop 2 HP via a mismatch... twice.
+    const first = game.cards.value[0]!
+    const second = game.cards.value.find((c) => c.id !== first.id && c.emoji !== first.emoji)!
+    void game.flip(first.id)
+    let pending = game.flip(second.id)
+    await vi.advanceTimersByTimeAsync(MISMATCH_DELAY_MS)
+    await pending
+    void game.flip(first.id)
+    pending = game.flip(second.id)
+    await vi.advanceTimersByTimeAsync(MISMATCH_DELAY_MS)
+    await pending
+    expect(game.hp.value).toBe(MAX_HP - 2)
+
+    game.heal(5)
+    expect(game.hp.value).toBe(MAX_HP) // capped, not MAX_HP + 3
+  })
+
+  it('peeks the hidden cards of a category, then flips them back', async () => {
+    const game = useGame()
+    game.startLevel(1)
+
+    const animals = game.cards.value.filter((c) => categoryOf(c.emoji) === 'animals')
+    // A level-1 board may or may not contain animals; only assert when present.
+    if (animals.length === 0) return
+
+    game.peek('animals')
+    expect(animals.every((c) => c.peeking)).toBe(true)
+    // Peeking is not a selection and costs nothing.
+    expect(animals.every((c) => !c.faceUp)).toBe(true)
+    expect(game.hp.value).toBe(MAX_HP)
+
+    await vi.advanceTimersByTimeAsync(PEEK_MS)
+    expect(animals.every((c) => !c.peeking)).toBe(true)
+  })
+
+  it('does not peek face-up, matched, or removed cards', () => {
+    const game = useGame()
+    game.startLevel(1)
+
+    const target = game.cards.value.find((c) => categoryOf(c.emoji) === 'animals')
+    if (!target) return
+    target.faceUp = true
+
+    game.peek('animals')
+    expect(target.peeking).toBe(false)
   })
 
   it('wins once every pair is matched', async () => {
