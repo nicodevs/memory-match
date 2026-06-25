@@ -38,6 +38,9 @@ export function levelSize(level: number): LevelSize {
   return LEVEL_SIZES[level - 1] ?? DEFAULT_LEVEL_SIZE
 }
 
+/** Starting health, and the denominator shown in the HP bar. */
+export const MAX_HP = 10
+
 // Timings (ms). The flip values are mirrored by the CSS transitions in MemoryCard.
 export const FLIP_MS = 500
 export const MATCH_FADE_MS = 400
