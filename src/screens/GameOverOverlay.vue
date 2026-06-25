@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 
-const emit = defineEmits<{ retry: [] }>()
+const emit = defineEmits<{ retry: []; menu: [] }>()
 </script>
 
 <template>
@@ -10,7 +10,10 @@ const emit = defineEmits<{ retry: [] }>()
   >
     <div class="text-7xl">🤬</div>
     <h2 class="text-5xl font-black tracking-tight text-red-500 sm:text-6xl">Game Over</h2>
-    <BaseButton @click="emit('retry')">Try Again</BaseButton>
+    <div class="flex flex-col items-center gap-4">
+      <BaseButton @click="emit('retry')">Try Again</BaseButton>
+      <BaseButton variant="secondary" @click="emit('menu')">Main Menu</BaseButton>
+    </div>
   </div>
 </template>
 

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 
 defineProps<{ level: number }>()
-const emit = defineEmits<{ start: [] }>()
+const emit = defineEmits<{ start: []; menu: [] }>()
 
 const leaving = ref(false)
 
@@ -25,6 +25,9 @@ function onFaded() {
   >
     <div class="text-7xl">🚀</div>
     <h2 class="text-5xl font-black tracking-tight text-orange-400 sm:text-6xl">Level {{ level }}</h2>
-    <BaseButton @click="dismiss">Start</BaseButton>
+    <div class="flex flex-col items-center gap-4">
+      <BaseButton @click="dismiss">Start</BaseButton>
+      <BaseButton v-if="level > 1" variant="secondary" @click="emit('menu')">Main Menu</BaseButton>
+    </div>
   </div>
 </template>
