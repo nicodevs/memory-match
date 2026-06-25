@@ -35,6 +35,10 @@ const { remaining, start: startTimer, stop: stopTimer } = useTimer()
 
 /** Whether the current level's play (and its timer) has begun. */
 const started = ref(false)
+/** Coins banked across every level cleared this session. */
+const totalCoins = ref(0)
+/** Reward for clearing a level: the leftover time plus the surviving lives. */
+const coinsEarned = computed(() => remaining.value + hp.value)
 
 startLevel(1)
 
@@ -60,9 +64,11 @@ function retry() {
   started.value = false
 }
 
-// Freeze the timer when the level is won or lost mid-countdown.
+// Freeze the timer when the level is won or lost mid-countdown, and bank the
+// coins earned the moment the level is cleared.
 watch([won, isOver], ([hasWon, over]) => {
   if (hasWon || over) stopTimer()
+  if (hasWon) totalCoins.value += coinsEarned.value
 })
 </script>
 
@@ -89,6 +95,14 @@ watch([won, isOver], ([hasWon, over]) => {
   </GameLayout>
 
   <StartOverlay v-if="!started && !won && !isOver" :level="level" @start="beginLevel" />
-  <VictoryOverlay v-if="won" @continue="nextLevel" />
+  <VictoryOverlay
+    v-if="won"
+    :level="level"
+    :time-left="remaining"
+    :lives-left="hp"
+    :coins-earned="coinsEarned"
+    :total-coins="totalCoins"
+    @continue="nextLevel"
+  />
   <GameOverOverlay v-if="isOver" @retry="retry" />
 </template>
