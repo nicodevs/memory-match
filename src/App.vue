@@ -1,11 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import MainMenu from './screens/MainMenu.vue'
+import GameScreen from './screens/GameScreen.vue'
+
+type Screen = 'menu' | 'game'
+
+const screen = ref<Screen>('menu')
+</script>
 
 <template>
-  <h1 class="text-3xl font-bold text-emerald-600">You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <MainMenu v-if="screen === 'menu'" @play="screen = 'game'" />
+  <GameScreen v-else @close="screen = 'menu'" />
 </template>
-
-<style scoped></style>
