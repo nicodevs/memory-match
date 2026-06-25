@@ -27,42 +27,46 @@ const emit = defineEmits<{ use: [id: string] }>()
 <style scoped>
 .power {
   display: flex;
-  height: 3rem;
-  width: 3rem;
+  height: 3.5rem;
+  width: 3.5rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
-  border: 2px solid #ca8a04; /* amber-600 */
-  background: linear-gradient(145deg, #fde047, #facc15); /* yellow-300 → yellow-400 */
-  font-size: 1.5rem;
+  border-radius: 14px;
+  border: 3px solid #0a1a55;
+  background: linear-gradient(180deg, #fac602, #d4a800);
+  font-size: 1.75rem;
   line-height: 1;
-  color: #1e293b;
-  box-shadow: 0 2px 0 #ca8a04;
+  box-shadow:
+    0 4px 0 rgba(10, 26, 85, 0.6),
+    inset 0 2px 3px rgba(255, 255, 255, 0.4);
   transition:
     transform 120ms ease,
     opacity 200ms ease,
-    box-shadow 120ms ease;
+    box-shadow 120ms ease,
+    filter 120ms ease;
 }
 
 .power:not(:disabled):hover {
-  background: linear-gradient(145deg, #fef08a, #fde047);
+  filter: brightness(1.08);
 }
 
 .power:not(:disabled):active {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 #ca8a04;
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(10, 26, 85, 0.6),
+    inset 0 2px 3px rgba(255, 255, 255, 0.4);
 }
 
-/* A small notch on consumables hints they're spent for good once used. */
+/* A dashed border on consumables hints they're spent for good once used. */
 .power.is-spent {
   border-style: dashed;
 }
 
 .power:disabled {
   cursor: not-allowed;
-  opacity: 0.35;
+  opacity: 0.4;
   box-shadow: none;
-  filter: grayscale(0.4);
+  filter: grayscale(0.5);
 }
 </style>

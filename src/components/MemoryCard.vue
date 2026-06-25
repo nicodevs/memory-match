@@ -37,7 +37,7 @@ function onClick() {
 
 <style scoped>
 .card {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 5 / 6;
   width: 100%;
   padding: 0;
   border: 0;
@@ -70,33 +70,40 @@ function onClick() {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
+  border-radius: 12px;
+  border: 3px solid #0a1a55;
   backface-visibility: hidden;
 }
 
 .card-back {
-  background: linear-gradient(145deg, #fb923c, #ea580c);
-  color: rgb(255 255 255 / 0.45);
-  font-size: clamp(1.5rem, 7vw, 2.5rem);
-  font-weight: 800;
+  background: linear-gradient(180deg, #ff8c00, #d46a00);
+  color: rgb(255 255 255 / 0.3);
+  font-family: 'Bungee', cursive;
+  font-size: clamp(1.25rem, 6vw, 1.75rem);
+  box-shadow: 0 4px 0 rgba(10, 26, 85, 0.55);
 }
 
 .card-front {
-  background: #f8fafc;
-  font-size: clamp(1.75rem, 9vw, 3rem);
+  background: linear-gradient(180deg, #ffffff, #f0f0f5);
+  border-color: #00e5ff;
+  font-size: clamp(1.5rem, 8vw, 2.5rem);
   line-height: 1;
   transform: rotateY(180deg);
+  box-shadow:
+    0 4px 0 rgba(10, 26, 85, 0.35),
+    0 0 14px 2px rgb(0 229 255 / 0.4);
 }
 
 /* A peeked card glows yellow so the temporary reveal reads as a power, not a flip. */
 .card.is-peeking .card-front {
+  border-color: #facc15;
   box-shadow:
     0 0 0 3px #facc15,
-    0 0 16px 2px rgb(250 204 21 / 0.7);
+    0 0 16px 3px rgb(250 204 21 / 0.75);
 }
 
 .card.is-matched {
-  transform: scale(1.25);
+  transform: scale(1.2);
   opacity: 0;
 }
 
