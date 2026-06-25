@@ -94,7 +94,12 @@ watch([won, isOver], ([hasWon, over]) => {
     </template>
   </GameLayout>
 
-  <StartOverlay v-if="!started && !won && !isOver" :level="level" @start="beginLevel" />
+  <StartOverlay
+    v-if="!started && !won && !isOver"
+    :level="level"
+    @start="beginLevel"
+    @menu="emit('close')"
+  />
   <VictoryOverlay
     v-if="won"
     :level="level"
@@ -104,5 +109,5 @@ watch([won, isOver], ([hasWon, over]) => {
     :total-coins="totalCoins"
     @continue="nextLevel"
   />
-  <GameOverOverlay v-if="isOver" @retry="retry" />
+  <GameOverOverlay v-if="isOver" @retry="retry" @menu="emit('close')" />
 </template>
