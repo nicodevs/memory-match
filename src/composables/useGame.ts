@@ -57,6 +57,8 @@ export function useGame() {
   const isOver = ref(false)
   /** Ids of the (at most two) face-up cards in the current selection. */
   const selection = ref<number[]>([])
+  /** Timers for mismatched pairs currently animating back face down. */
+  const mismatchTimers = new Set<ReturnType<typeof setTimeout>>()
 
   const size = computed(() => levelSize(level.value))
   const cols = computed(() => size.value.cols)
@@ -64,6 +66,7 @@ export function useGame() {
   const won = computed(() => totalPairs.value > 0 && matched.value === totalPairs.value)
 
   function startLevel(next: number) {
+    cancelMismatchTimers()
     level.value = next
     matched.value = 0
     hp.value = MAX_HP
@@ -101,23 +104,36 @@ export function useGame() {
       second.removed = true
       matched.value++
     } else {
-      // Mismatch: costs 1 HP. Pause so the player sees both cards.
+      // Mismatch: costs 1 HP.
       hp.value--
-      await wait(MISMATCH_DELAY_MS)
       selection.value = []
       if (hp.value <= 0) {
         endGame()
         return
       }
-      // Flip the pair back. Clearing the selection above keeps the rest of the
-      // board clickable during the flip-back.
-      first.faceUp = false
-      second.faceUp = false
+      // Keep both cards face up briefly so the player sees the miss, then flip
+      // them back. The selection is cleared and the flip-back is scheduled (not
+      // awaited), so the rest of the board stays fully interactive meanwhile and
+      // this pair plays its flip-back animation through to the end undisturbed.
+      const timer = setTimeout(() => {
+        first.faceUp = false
+        second.faceUp = false
+        mismatchTimers.delete(timer)
+      }, MISMATCH_DELAY_MS)
+      mismatchTimers.add(timer)
     }
+  }
+
+  /** Cancel any in-flight mismatch flip-backs (on game over / level change). */
+  function cancelMismatchTimers() {
+    for (const timer of mismatchTimers) clearTimeout(timer)
+    mismatchTimers.clear()
   }
 
   /** Game over: reveal every remaining card (these do not count as matches). */
   function endGame() {
+    // Drop any pending flip-backs so they can't hide cards we're about to reveal.
+    cancelMismatchTimers()
     for (const card of cards.value) {
       if (!card.removed) card.faceUp = true
     }
@@ -126,9 +142,14 @@ export function useGame() {
 
   /** Flip a face-down card up; evaluates the pair once two are selected. */
   async function flip(id: number) {
-    if (isOver.value || selection.value.length >= 2) return
+    if (isOver.value) return
     const card = byId(id)
     if (!card || card.faceUp || card.matched || card.removed) return
+
+    // A confirmed match is still playing its enlarge/fade animation — ignore.
+    // (A mismatched pair flipping back does NOT block: it has left the selection,
+    // so its flip-back animation finishes on its own while play continues.)
+    if (selection.value.length >= 2) return
 
     card.faceUp = true
     selection.value.push(id)

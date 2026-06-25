@@ -23,8 +23,6 @@ const {
   level,
   cards,
   cols,
-  matched,
-  totalPairs,
   hp,
   maxHp,
   isOver,
@@ -135,27 +133,24 @@ watch([won, isOver], ([hasWon, over]) => {
   <GameLayout>
     <template #header>
       <IconButton aria-label="Close game" @click="emit('close')">✕</IconButton>
-      <h1 class="text-xl font-bold tracking-wide">LEVEL {{ level }}</h1>
+      <span class="brawl-pill-dark rounded-[10px] px-6 py-2 font-brawl text-lg tracking-wide text-white">
+        LEVEL {{ level }}
+      </span>
       <IconButton :aria-label="soundOn ? 'Mute sound' : 'Unmute sound'" @click="toggleSound">
         {{ soundOn ? '🔊' : '🔇' }}
       </IconButton>
     </template>
 
-    <div class="flex w-full flex-col items-center gap-6">
+    <div class="flex w-full flex-col items-center gap-5">
       <GameTimer :seconds="seconds" :frozen="started && frozen" />
       <div class="flex w-full flex-col items-center gap-4 lg:w-auto lg:flex-row lg:items-start lg:justify-center lg:gap-5">
-        <div class="flex w-full flex-col items-center gap-6 lg:w-[28rem]">
+        <div class="flex w-full flex-col items-center gap-5 lg:w-[28rem]">
           <GameBoard :cards="cards" :cols="cols" @flip="flip" />
           <HpBar :hp="hp" :max="maxHp" />
         </div>
         <PowerBar :powers="inventory" :playing="playing" @use="onUsePower" />
       </div>
     </div>
-
-    <template #footer>
-      <span class="font-semibold tracking-wide">PAIRS</span>
-      <span class="tabular-nums">{{ matched }} / {{ totalPairs }}</span>
-    </template>
   </GameLayout>
 
   <StartOverlay

@@ -13,37 +13,48 @@ const emit = defineEmits<{ continue: [] }>()
 </script>
 
 <template>
-  <div class="fixed inset-0 z-10 flex flex-col bg-slate-900/95 text-white backdrop-blur-sm">
-    <main class="flex flex-1 flex-col items-center justify-center gap-6 overflow-auto px-6 py-8 text-center">
-      <div class="text-7xl">🏆</div>
-      <div class="flex flex-col items-center gap-1">
-        <h2 class="text-5xl font-black tracking-tight text-orange-400 sm:text-6xl">VICTORY!</h2>
-        <p class="text-sm font-semibold tracking-widest text-white/60">LEVEL {{ level }} COMPLETE</p>
+  <div class="brawl-bg fixed inset-0 z-10 flex flex-col text-white">
+    <main class="flex flex-1 flex-col items-center justify-center gap-5 overflow-auto px-6 py-8 text-center">
+      <div class="flex flex-col items-center gap-2">
+        <div class="text-6xl">🏆</div>
+        <h2 class="brawl-title font-brawl text-5xl text-brawl-yellow">VICTORY!</h2>
+        <p class="font-brawl text-base tracking-wide text-brawl-dim">LEVEL {{ level }} COMPLETE</p>
       </div>
 
-      <div class="flex w-full max-w-xs flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-5">
+      <div class="summary flex w-full max-w-xs flex-col gap-3.5 rounded-2xl px-5 py-4">
         <div class="flex items-center justify-between">
-          <span class="text-white/70">⏱️ Time left</span>
-          <span class="font-bold tabular-nums">{{ timeLeft }}</span>
+          <span class="flex items-center gap-2 font-brawl text-base">⏱️ TIME LEFT</span>
+          <span class="font-brawl text-base text-brawl-yellow tabular-nums">{{ timeLeft }}</span>
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-white/70">❤️ Lives left</span>
-          <span class="font-bold tabular-nums">{{ livesLeft }}</span>
+          <span class="flex items-center gap-2 font-brawl text-base">❤️ LIVES LEFT</span>
+          <span class="font-brawl text-base text-brawl-yellow tabular-nums">{{ livesLeft }}</span>
         </div>
-        <div class="flex items-center justify-between border-t border-white/10 pt-3">
-          <span class="text-white/70">💰 Coins earned</span>
-          <span class="font-bold tabular-nums text-orange-400">{{ coinsEarned }}</span>
+        <div class="h-0.5 w-full rounded bg-brawl-border" />
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2 font-brawl text-base">💰 COINS</span>
+          <span class="font-brawl text-base text-brawl-yellow tabular-nums">{{ coinsEarned }}</span>
         </div>
       </div>
 
       <div class="flex flex-col items-center gap-1">
-        <span class="text-xs font-semibold tracking-widest text-white/60">TOTAL COINS</span>
-        <span class="text-3xl font-black tabular-nums">💰 {{ totalCoins }}</span>
+        <span class="font-brawl text-base tracking-wide text-brawl-dim">TOTAL COINS</span>
+        <span class="brawl-title flex items-center gap-2 font-brawl text-5xl text-white tabular-nums">
+          💰 {{ totalCoins }}
+        </span>
       </div>
     </main>
 
-    <footer class="flex h-20 shrink-0 items-center justify-center border-t border-white/10 px-4">
-      <BaseButton @click="emit('continue')">CONTINUE</BaseButton>
+    <footer class="flex shrink-0 items-center justify-center px-6 pb-7">
+      <BaseButton class="w-full max-w-md" @click="emit('continue')">CONTINUE</BaseButton>
     </footer>
   </div>
 </template>
+
+<style scoped>
+.summary {
+  background: #1b2d6e;
+  border: 3px solid #0a1a55;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+</style>

@@ -1,5 +1,19 @@
 @import 'tailwindcss';
 
+@theme {
+  --font-brawl: 'Bungee', cursive;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  --color-brawl-yellow: #fac602;
+  --color-brawl-dim: #8ba4e8;
+  --color-brawl-border: #0a1a55;
+  --color-brawl-card: #1b2d6e;
+  --color-brawl-card-dark: #142358;
+  --color-brawl-panel: #1e3fa8;
+  --color-brawl-panel-dark: #142d7a;
+  --color-brawl-cyan: #00e5ff;
+}
+
 html,
 body,
 #app {
@@ -8,10 +22,100 @@ body,
 
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  background: #0f2280;
+  font-family: var(--font-body);
+}
+
+/* The deep blue radial backdrop shared by every screen. */
+.brawl-bg {
+  background: radial-gradient(125% 105% at 50% 32%, #2248d4 0%, #1a3ac7 50%, #0f2280 100%);
+}
+
+/* Chunky navy outline behind the big Bungee titles. */
+.brawl-title {
+  text-shadow:
+    2px 2px 0 #0a1a55,
+    -2px 2px 0 #0a1a55,
+    2px -1px 0 #0a1a55,
+    -2px -1px 0 #0a1a55,
+    0 3px 0 #0a1a55;
+}
+
+/* Reusable 3D game button. Pair with a colour modifier class. */
+.brawl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-brawl);
+  color: #fff;
+  letter-spacing: 0.02em;
+  border-radius: 14px;
+  border: 3px solid;
+  text-shadow: 0 2px 0 rgba(10, 26, 85, 0.5);
+  box-shadow:
+    0 4px 0 rgba(10, 26, 85, 0.45),
+    0 6px 10px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease,
+    filter 120ms ease;
+}
+
+.brawl-btn:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.brawl-btn:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(10, 26, 85, 0.45);
+}
+
+.brawl-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+  filter: grayscale(0.4);
+}
+
+.brawl-btn--green {
+  background: linear-gradient(180deg, #53ce17, #2a8c08);
+  border-color: #1b5e20;
+}
+
+.brawl-btn--blue {
+  background: linear-gradient(180deg, #42a5f5, #2286d6);
+  border-color: #0d47a1;
+}
+
+/* Square icon button (close / sound). */
+.brawl-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 3px solid #0a1a55;
+  background: linear-gradient(180deg, #1e3fa8, #142d7a);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+
+.brawl-icon-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Pills used across the HUD. */
+.brawl-pill-dark {
+  background: linear-gradient(180deg, #1b2d6e, #142358);
+  border: 3px solid #0a1a55;
+  box-shadow: 0 4px 0 rgba(10, 26, 85, 0.55);
+}
+
+.brawl-pill-gold {
+  background: linear-gradient(180deg, #fac602, #d4a800);
+  border: 3px solid #0a1a55;
+  box-shadow: 0 4px 0 rgba(10, 26, 85, 0.55);
 }
