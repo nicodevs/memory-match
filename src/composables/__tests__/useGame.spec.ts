@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useGame } from '../useGame'
-import { FLIP_MS, MATCH_FADE_MS, MISMATCH_DELAY_MS } from '@/constants'
+import { FLIP_MS, MATCH_FADE_MS, MAX_HP, MISMATCH_DELAY_MS } from '@/constants'
 
 describe('useGame', () => {
   beforeEach(() => {
@@ -67,7 +67,7 @@ describe('useGame', () => {
     expect(game.won.value).toBe(false)
   })
 
-  it('flips a mismatched pair back down', async () => {
+  it('flips a mismatched pair back down and costs 1 HP', async () => {
     const game = useGame()
     game.startLevel(1)
 
@@ -83,6 +83,53 @@ describe('useGame', () => {
     expect(first.faceUp).toBe(false)
     expect(second.faceUp).toBe(false)
     expect(game.matched.value).toBe(0)
+    expect(game.hp.value).toBe(MAX_HP - 1)
+  })
+
+  it('ends the game at 0 HP, revealing every card and blocking input', async () => {
+    const game = useGame()
+    game.startLevel(1)
+
+    const first = game.cards.value[0]!
+    const second = game.cards.value.find((c) => c.id !== first.id && c.emoji !== first.emoji)!
+
+    // Repeatedly mismatch the same two cards until HP is depleted.
+    for (let i = 0; i < MAX_HP; i++) {
+      void game.flip(first.id)
+      const pending = game.flip(second.id)
+      await vi.advanceTimersByTimeAsync(MISMATCH_DELAY_MS)
+      await pending
+    }
+
+    expect(game.hp.value).toBe(0)
+    expect(game.isOver.value).toBe(true)
+    expect(game.cards.value.every((c) => c.faceUp)).toBe(true)
+    expect(game.matched.value).toBe(0)
+
+    // No further flips register once the game is over.
+    const untouched = game.cards.value.find((c) => c.id !== first.id && c.id !== second.id)!
+    untouched.faceUp = false
+    void game.flip(untouched.id)
+    expect(untouched.faceUp).toBe(false)
+  })
+
+  it('restarts the same level with HP reset', async () => {
+    const game = useGame()
+    game.startLevel(2)
+
+    const first = game.cards.value[0]!
+    const second = game.cards.value.find((c) => c.id !== first.id && c.emoji !== first.emoji)!
+    void game.flip(first.id)
+    const pending = game.flip(second.id)
+    await vi.advanceTimersByTimeAsync(MISMATCH_DELAY_MS)
+    await pending
+    expect(game.hp.value).toBe(MAX_HP - 1)
+
+    game.restart()
+    expect(game.level.value).toBe(2)
+    expect(game.hp.value).toBe(MAX_HP)
+    expect(game.isOver.value).toBe(false)
+    expect(game.cards.value).toHaveLength(12)
   })
 
   it('wins once every pair is matched', async () => {
