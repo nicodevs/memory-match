@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Card } from '@/types'
 
 const props = defineProps<{ card: Card }>()
 const emit = defineEmits<{ flip: [] }>()
 
+/** The face is visible when flipped up or temporarily peeked. */
+const revealed = computed(() => props.card.faceUp || props.card.peeking)
+
 function onClick() {
-  if (props.card.faceUp || props.card.matched || props.card.removed) return
+  // Peeked cards can't be clicked; neither can already-resolved ones.
+  if (props.card.peeking || props.card.faceUp || props.card.matched || props.card.removed) return
   emit('flip')
 }
 </script>
@@ -15,11 +20,12 @@ function onClick() {
     type="button"
     class="card"
     :class="{
-      'is-up': card.faceUp,
+      'is-up': revealed,
+      'is-peeking': card.peeking,
       'is-matched': card.matched,
       'is-removed': card.removed,
     }"
-    :aria-label="card.faceUp ? card.emoji : 'Hidden card'"
+    :aria-label="revealed ? card.emoji : 'Hidden card'"
     @click="onClick"
   >
     <span class="card-inner">
@@ -80,6 +86,13 @@ function onClick() {
   font-size: clamp(1.75rem, 9vw, 3rem);
   line-height: 1;
   transform: rotateY(180deg);
+}
+
+/* A peeked card glows yellow so the temporary reveal reads as a power, not a flip. */
+.card.is-peeking .card-front {
+  box-shadow:
+    0 0 0 3px #facc15,
+    0 0 16px 2px rgb(250 204 21 / 0.7);
 }
 
 .card.is-matched {

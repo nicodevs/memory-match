@@ -1,13 +1,15 @@
 import { computed, ref } from 'vue'
 import {
+  categoryOf,
   EMOJI_POOL,
   FLIP_MS,
   levelSize,
   MATCH_FADE_MS,
   MAX_HP,
   MISMATCH_DELAY_MS,
+  PEEK_MS,
 } from '@/constants'
-import type { Card } from '@/types'
+import type { Card, EmojiCategory } from '@/types'
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -37,6 +39,7 @@ function buildDeck(pairs: number): Card[] {
         faceUp: false,
         matched: false,
         removed: false,
+        peeking: false,
       }),
     )
   return shuffle(deck)
@@ -135,6 +138,32 @@ export function useGame() {
     }
   }
 
+  /** Restore HP (Snack power), never exceeding the maximum. Inert once over. */
+  function heal(amount: number) {
+    if (isOver.value) return
+    hp.value = Math.min(MAX_HP, hp.value + amount)
+  }
+
+  /**
+   * Briefly reveal every still-hidden card of a category (a peek power). Peeked
+   * cards show their face for PEEK_MS without becoming a selection or a match;
+   * each peek runs on its own timer so overlapping peeks don't interfere.
+   */
+  function peek(category: EmojiCategory) {
+    const targets = cards.value.filter(
+      (card) =>
+        !card.faceUp &&
+        !card.matched &&
+        !card.removed &&
+        !card.peeking &&
+        categoryOf(card.emoji) === category,
+    )
+    for (const card of targets) card.peeking = true
+    setTimeout(() => {
+      for (const card of targets) card.peeking = false
+    }, PEEK_MS)
+  }
+
   return {
     level,
     cards,
@@ -148,6 +177,8 @@ export function useGame() {
     startLevel,
     restart,
     flip,
+    heal,
+    peek,
     endGame,
   }
 }

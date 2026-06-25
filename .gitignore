@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# PR screenshots (hosted off-repo, never committed)
+.pr-screenshots/
