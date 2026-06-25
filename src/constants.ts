@@ -38,6 +38,11 @@ export function levelSize(level: number): LevelSize {
   return LEVEL_SIZES[level - 1] ?? DEFAULT_LEVEL_SIZE
 }
 
+/** Countdown length (seconds) for a level: 20s at level 1, +10s each level. */
+export function levelDuration(level: number): number {
+  return (level + 1) * 10
+}
+
 /** Starting health, and the denominator shown in the HP bar. */
 export const MAX_HP = 10
 
